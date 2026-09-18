@@ -1,0 +1,7 @@
+.vscode/
+.git-auto/
+*.exe
+*.exe.log
+*.exe.log.dmp
+latex/
+html/
