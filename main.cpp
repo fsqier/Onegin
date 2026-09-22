@@ -10,66 +10,66 @@
 
 struct String {
     char* string;
-    int len = 0;
+    size_t len = 0;
 };
 
-int ReadFromFile (const char* file, char** buffer);
-int TakeFileSize (int file);
-int WriteToFile  (String* index, const char* file, int size, int need_empty);
-int CmpStrUpBegin(const void* val1, const void* val2);
-int CmpStrUpEnd  (const void* val1, const void* val2);
-int CmpPtr       (const void* val1, const void* val2);
+struct Text {
+    String* index;
+    char* buffer;
+};
+
+int     GetText      (const char* file, Text* text);
+int     ReadFromFile (const char* file, char** buffer);
+int     GetFileSize  (int file);
+String* GetStrings   (char** buffer, int cnt_strings, int read_elems);
+int     WriteToFile  (String* index, const char* file, int size, int need_empty);
+int     CmpStrUpBegin(const void* val1, const void* val2);
+int     CmpStrUpEnd  (const void* val1, const void* val2);
+int     CmpPtr       (const void* val1, const void* val2);
 
 int main() {
-     
-    char* text = NULL;
-    int read_elems = ReadFromFile("Hamlet.txt", &text);
-    assert(read_elems != -1);
 
-    text[read_elems] = '\0';
-
-    int cnt_strings = CntChar(text, '\n', read_elems) + 1;
-
-    String* index = (String*)calloc(cnt_strings, sizeof(String));
-    assert(index != NULL);
-
-    int ind = 1;
-    index[0].string = text;
-    for (int i = 0; i < read_elems; ++i) {
-        if (text[i] == '\r') {
-            printf("o no:(");
-        }
-        if (text[i] == '\n') {
-            text[i] = '\0';
-            index[ind].string = text + i + 1;
-            index[ind - 1].len = MyStrLen(index[ind - 1].string);
-            ind += 1;
-        }
-    }
-    index[ind - 1].len = MyStrLen(index[ind - 1].string);
+    Text text = {NULL, NULL};
+    int cnt_strings = GetText("Hamlet.txt", &text);
 
     //sort begin -----------------------------------------
-    MyBubbleSort(index, cnt_strings, sizeof(String), CmpStrUpBegin);
-    WriteToFile(index, "result_begin.txt", cnt_strings, 0);
+    MyBubbleSort(text.index, cnt_strings, sizeof(String), CmpStrUpBegin);
+    int status = WriteToFile(text.index, "result_begin.txt", cnt_strings, 0);
+    assert(status != 0);
     
     //sort end-------------------------------------------
-    qsort(index, cnt_strings, sizeof(String), CmpStrUpEnd);
-    WriteToFile(index, "result_end.txt", cnt_strings, 0);
+    qsort(text.index, cnt_strings, sizeof(String), CmpStrUpEnd);
+    status = WriteToFile(text.index, "result_end.txt", cnt_strings, 0);
+    assert(status != 0);
 
     //sort ptr ------------------------------------------
-    MyBubbleSort(index, cnt_strings, sizeof(String), CmpPtr);
-    WriteToFile(index, "result_ptr.txt", cnt_strings, 1);
+    MyBubbleSort(text.index, cnt_strings, sizeof(String), CmpPtr);
+    status = WriteToFile(text.index, "result_ptr.txt", cnt_strings, 1);
+    assert(status != 0); 
 
-    free(text);
-    free(index);
+    free(text.buffer);
+    free(text.index);
 
+}
+
+int GetText (const char* file, Text* text) {
+    int read_elems = ReadFromFile("Hamlet.txt", &((*text).buffer));
+    assert(read_elems != -1);
+
+    int cnt_strings = CntChar((*text).buffer, '\n', read_elems) + 1;
+
+    (*text).index = GetStrings(&(*text).buffer, cnt_strings, read_elems); 
+    return cnt_strings;
 }
 
 int ReadFromFile(const char* file, char** buffer) {
     int fd = open(file, O_RDONLY);
-    assert(fd != -1);
+    if (fd == -1) {
+        printf("Don't find %s", file);
+        return -1;
+    }
     
-    int cnt_elems = TakeFileSize(fd);
+    int cnt_elems = GetFileSize(fd);
 
     *buffer = (char*)calloc(cnt_elems + 1, sizeof(char));
     assert(*buffer != NULL);
@@ -77,19 +77,45 @@ int ReadFromFile(const char* file, char** buffer) {
 
     close(fd);
 
+    (*buffer)[read_elems] = '\0';
+
     return read_elems;
 }
 
-int TakeFileSize (int file) {
+int GetFileSize (int file) {
     struct stat statistic; 
     int ok = fstat(file, &statistic); 
     assert(ok != -1);
     return statistic.st_size;
 }
 
+String* GetStrings (char** buffer, int cnt_strings, int read_elems) {
+    String* index = (String*)calloc(cnt_strings, sizeof(String));
+    assert(index != NULL);
+
+    int ind = 1;
+    index[0].string = *buffer;
+    for (int i = 0; i < read_elems; ++i) {
+        if ((*buffer)[i] == '\r') {
+            printf("o no:(");
+        }
+        if ((*buffer)[i] == '\n') {
+            (*buffer)[i] = '\0';
+            index[ind].string = *buffer + i + 1;
+            index[ind - 1].len = MyStrLen(index[ind - 1].string);
+            ind += 1;
+        }
+    }
+    index[ind - 1].len = MyStrLen(index[ind - 1].string);
+    return index;
+}
+
 int WriteToFile (String* index, const char* file, int size, int need_empty) {
     int fd = open(file, O_WRONLY);
-    assert(fd != -1);
+    if (fd == -1) {
+        printf("Don't find %s", file);
+        return -1;
+    }
 
     for (int i = 0; i < size; ++i) {
         if (index[i].len == 0 && !need_empty) {
@@ -138,7 +164,7 @@ int CmpStrUpEnd(const void* val1, const void* val2) {
     const String str1 = *(const String*)val1;
     const String str2 = *(const String*)val2;
 
-    int i = str1.len - 1, j = str2.len - 1;
+    size_t i = str1.len - 1, j = str2.len - 1;
 
     while (i >= 0 && j >= 0) {
         while (i >= 0 && !isalpha(str1.string[i])){
