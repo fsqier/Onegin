@@ -3,24 +3,26 @@
 #include <stdint.h>
 
 int*   InputArr      (int* arr, int size);
-void*  MyBubbleSort  (void* arr, size_t size, size_t size_elem, int (*Cmp)(void* val1, void* val2));
+void*  MyBubbleSort  (void* arr, size_t size, size_t size_elem, int (*Cmp)(const void* val1, const void* val2));
 void   MySwap        (void* val1, void* val2, size_t len);
 void   PrintArrInt   (void* arr, size_t size);
-void*  MyQSort       (void* arr, size_t l, size_t r, size_t size_elem, int (*Cmp)(void* val1, void* val2));
-size_t PartitionHoaro(void* arr, size_t l, size_t r, size_t size_elem, int (*Cmp)(void* val1, void* val2));
+void*  MyQSort       (void* arr, size_t l, size_t r, size_t size_elem, 
+                        int (*Cmp)(const void* val1, const void* val2));
+size_t PartitionHoaro(void* arr, size_t l, size_t r, size_t size_elem, 
+                        int (*Cmp)(const void* val1, const void* val2));
 int    CmpIntUp      (void* val1, void* val2);
 
 int* InputArr (int* arr, int size) {
     assert(arr != NULL);
 
-    printf("¬ведите эелементы массива в количестве %d штук: ", size);
+    printf("¬ведите пж массив из %d элементов: ", size);
     for(int i = 0; i < size; ++i) {
         scanf("%d", &arr[i]);
     }
     return arr;
 }
 
-void* MyBubbleSort(void* arr, size_t size, size_t size_elem, int (*Cmp)(void* val1, void* val2)) {
+void* MyBubbleSort(void* arr, size_t size, size_t size_elem, int (*Cmp)(const void* val1, const void* val2)) {
     assert(arr != NULL);
 
     unsigned char* buf = (unsigned char*)arr;
@@ -30,7 +32,7 @@ void* MyBubbleSort(void* arr, size_t size, size_t size_elem, int (*Cmp)(void* va
         for (size_t j = 0; j < size - i - 1; ++j) {
             unsigned char* val1 = buf + j * size_elem;
             unsigned char* val2 = buf + (j + 1) * size_elem;
-            if ((*Cmp)(val1, val2) < 0) {
+            if ((*Cmp)(val1, val2) > 0) {
                 MySwap(val1, val2, size_elem);
                 cnt_change += 1;
             }
@@ -42,7 +44,8 @@ void* MyBubbleSort(void* arr, size_t size, size_t size_elem, int (*Cmp)(void* va
     return arr;
 }
 
-size_t PartitionHoaro(void* arr, size_t l, size_t r, size_t size_elem, int (*Cmp)(void* val1, void* val2)) {
+size_t PartitionHoaro(void* arr, size_t l, size_t r, size_t size_elem, 
+                        int (*Cmp)(const void* val1, const void* val2)) {
 
     unsigned char* buf = (unsigned char*)arr;
     unsigned char* pivot = buf + (l + (r - l + 1) / 2) * size_elem;
@@ -73,7 +76,8 @@ size_t PartitionHoaro(void* arr, size_t l, size_t r, size_t size_elem, int (*Cmp
 
 }
 
-void* MyQSort (void* arr, size_t l, size_t r, size_t size_elem, int (*Cmp)(void* val1, void* val2)) {
+void* MyQSort (void* arr, size_t l, size_t r, size_t size_elem, 
+                int (*Cmp)(const void* val1, const void* val2)) {
     if (l + 1 >= r) {
         return arr;
     }
@@ -90,7 +94,7 @@ void MySwap (void* val1, void* val2, size_t len) {
     assert(val2 != NULL);
 
     uint64_t buf1;
-    for (size_t i = 0; i < len / 8;) {
+    for (size_t i = 0; i < len / 8; ++i) {
         buf1 = ((uint64_t*)val1)[i];
         ((uint64_t*)val1)[i] = ((uint64_t*)val2)[i];
         ((uint64_t*)val2)[i] = buf1;
@@ -119,7 +123,6 @@ void MySwap (void* val1, void* val2, size_t len) {
         ((uint8_t*)val1 + blocks)[i] = ((uint8_t*)val2 + blocks)[i];
         ((uint8_t*)val2 + blocks)[i] = buf4;
     }
-    
 }
 
 int CmpIntUp (void* val1, void* val2) {

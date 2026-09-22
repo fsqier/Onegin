@@ -23,14 +23,17 @@ char*  MyStrRChr (char* str, int ch);
 char*  MyStrRNChr(char* str, int ch, int max_len);
 void*  MyMemCpy  (void* to, const void* from, size_t len);
 void*  MyMemMove (void* to, void* from, size_t len);
+int    CntChar   (char* str, int ch, int size);
 
 int MyStrLen(const char* str) {
     assert(str != NULL);
 
     int len = 0;
-    while (str[len++] != '\0');
+    while (str[len] != '\0' && str[len] != '\n') {
+        len++;
+    }
 
-    return len - 1;
+    return len;
 }
 
 int MyStrNLen(const char* str, int max_len) {
@@ -207,11 +210,12 @@ size_t MyGetLine(char** str, size_t* max_len, FILE* stream) {
 
 char* MyStrDup (const char* str) {
     assert(str != NULL);
-    char* str_copy = (char*)calloc(MyStrLen(str) + 1, sizeof(char));
+    int len_str = MyStrLen(str);
+    char* str_copy = (char*)calloc(len_str + 1, sizeof(char));
     if (str_copy == NULL) {
         return NULL;
     }
-    MyMemCpy(str_copy, str, MyStrLen(str) + 1);
+    MyMemCpy(str_copy, str, len_str + 1);
 
     return str_copy;
 
@@ -319,4 +323,14 @@ void* MyMemMove (void* to, void* from, size_t len) {
     }
 
     return to;
+}
+
+int CntChar (char* str, int ch, int size) {
+    int cnt = 0;
+    for (int i = 0; i < size; ++i) {
+        if (str[i] == (char)ch) {
+            cnt += 1;
+        }
+    }
+    return cnt;
 }
