@@ -53,7 +53,7 @@ int main() {
 }
 
 int GetText (const char* file, Text* text) {
-    int read_elems = ReadFromFile("Hamlet.txt", &((*text).buffer));
+    int read_elems = ReadFromFile("Hamlet.txt", &(*text).buffer);
     assert(read_elems != -1);
 
     int cnt_strings = CntChar((*text).buffer, '\n', read_elems) + 1;
