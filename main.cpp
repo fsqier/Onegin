@@ -27,7 +27,7 @@ int     CmpStrUpBegin(const void* val1, const void* val2);
 int     CmpStrUpEnd  (const void* val1, const void* val2);
 int     CmpPtr       (const void* val1, const void* val2);
 
-int main() {
+int main () {
 
     Text text = {NULL, NULL};
     int cnt_strings = GetText("Hamlet.txt", &text);
@@ -36,11 +36,11 @@ int main() {
     MyBubbleSort(text.index, cnt_strings, sizeof(String), CmpStrUpBegin);
     WriteToFile(text.index, "result_begin.txt", cnt_strings, 0);
     
-    //sort end-------------------------------------------
+    //sort end   -----------------------------------------
     qsort(text.index, cnt_strings, sizeof(String), CmpStrUpEnd);
     WriteToFile(text.index, "result_end.txt", cnt_strings, 0);
 
-    //sort ptr ------------------------------------------
+    //sort ptr   -----------------------------------------
     MyBubbleSort(text.index, cnt_strings, sizeof(String), CmpPtr);
     WriteToFile(text.index, "result_ptr.txt", cnt_strings, 1); 
 
@@ -59,7 +59,7 @@ int GetText (const char* file, Text* text) {
     return cnt_strings;
 }
 
-int ReadFromFile(const char* file, char** buffer) {
+int ReadFromFile (const char* file, char** buffer) {
     int fd = open(file, O_RDONLY);
     if (fd == -1) {
         printf("Don't find %s\n", file);
@@ -126,7 +126,7 @@ int WriteToFile (String* index, const char* file, int size, int need_empty) {
     return 1;
 }
 
-int CmpStrUpBegin(const void* val1, const void* val2) {
+int CmpStrUpBegin (const void* val1, const void* val2) {
     const String str1 = *(const String*)val1;
     const String str2 = *(const String*)val2;
 
@@ -151,7 +151,7 @@ int CmpStrUpBegin(const void* val1, const void* val2) {
     return str1.len - str2.len;
 }
 
-int CmpStrUpEnd(const void* val1, const void* val2) {
+int CmpStrUpEnd (const void* val1, const void* val2) {
     const String str1 = *(const String*)val1;
     const String str2 = *(const String*)val2;
 
