@@ -34,18 +34,15 @@ int main() {
 
     //sort begin -----------------------------------------
     MyBubbleSort(text.index, cnt_strings, sizeof(String), CmpStrUpBegin);
-    int status = WriteToFile(text.index, "result_begin.txt", cnt_strings, 0);
-    assert(status != 0);
+    WriteToFile(text.index, "result_begin.txt", cnt_strings, 0);
     
     //sort end-------------------------------------------
     qsort(text.index, cnt_strings, sizeof(String), CmpStrUpEnd);
-    status = WriteToFile(text.index, "result_end.txt", cnt_strings, 0);
-    assert(status != 0);
+    WriteToFile(text.index, "result_end.txt", cnt_strings, 0);
 
     //sort ptr ------------------------------------------
     MyBubbleSort(text.index, cnt_strings, sizeof(String), CmpPtr);
-    status = WriteToFile(text.index, "result_ptr.txt", cnt_strings, 1);
-    assert(status != 0); 
+    WriteToFile(text.index, "result_ptr.txt", cnt_strings, 1); 
 
     free(text.buffer);
     free(text.index);
@@ -142,15 +139,9 @@ int CmpStrUpBegin(const void* val1, const void* val2) {
         while (j < str2.len && !isalpha(str2.string[j])){
             j++;
         }
-        if (i >= str1.len && j >= str2.len) { 
-            return 0;
-        }
-        if (i >= str1.len) {
-            return -1;
+        if (i >= str1.len || j >=str2.len) {
+            return (i >= str1.len ? (j >= str2.len ? 0 : -1) : 1);
         } 
-        if (j >= str2.len){
-            return 1;
-        }
         if (tolower(str1.string[i]) != tolower(str2.string[j])){
             return tolower(str1.string[i]) - tolower(str2.string[j]);
         }
@@ -164,7 +155,7 @@ int CmpStrUpEnd(const void* val1, const void* val2) {
     const String str1 = *(const String*)val1;
     const String str2 = *(const String*)val2;
 
-    size_t i = str1.len - 1, j = str2.len - 1;
+    int i = str1.len - 1, j = str2.len - 1;
 
     while (i >= 0 && j >= 0) {
         while (i >= 0 && !isalpha(str1.string[i])){
@@ -173,15 +164,9 @@ int CmpStrUpEnd(const void* val1, const void* val2) {
         while (j >= 0 && !isalpha(str2.string[j])){
             j--;
         }
-        if (i < 0 && j < 0) { 
-            return 0;
-        }
-        if (i < 0) {
-            return -1;
+        if (i < 0 || j < 0) {
+            return (i < 0 ? (j < 0 ? 0 : -1) : 1);
         } 
-        if (j < 0){
-            return 1;
-        }
         if (tolower(str1.string[i]) != tolower(str2.string[j])){
             return tolower(str1.string[i]) - tolower(str2.string[j]);
         }
