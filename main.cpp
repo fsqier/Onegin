@@ -62,7 +62,7 @@ int GetText (const char* file, Text* text) {
 int ReadFromFile(const char* file, char** buffer) {
     int fd = open(file, O_RDONLY);
     if (fd == -1) {
-        printf("Don't find %s", file);
+        printf("Don't find %s\n", file);
         return -1;
     }
     
