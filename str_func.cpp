@@ -311,12 +311,11 @@ void* MyMemMove (void* to, void* from, size_t len) {
     assert(to != NULL);
     assert(from != NULL);
 
-    if (!(from < to && to < from + len)) {
-        return MyMemCpy(to, from , len);
-    }
-
     char* to_buf = (char*) to;
     char* from_buf = (char*) from;
+    if (!(from_buf < to_buf && to_buf < from_buf + len)) {
+        return MyMemCpy(to, from , len);
+    }
 
     for(size_t i = 0; i < len; ++i) {
         to_buf[len - i - 1] = from_buf[len - i - 1];
