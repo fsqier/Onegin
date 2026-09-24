@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h> 
+#include <windows.h>
 #include "str_func.cpp"
 #include "sort_func.cpp"
 
@@ -40,11 +41,11 @@ int main () {
     WriteToFile(text.lines, "result_begin.txt", cnt_strings, 0);
     
     //sort end   -----------------------------------------
-    qsort(text.lines, cnt_strings, sizeof(Line), CmpStrUpEnd);
+    MyQSort(text.lines, cnt_strings, sizeof(Line), CmpStrUpEnd);
     WriteToFile(text.lines, "result_end.txt", cnt_strings, 0);
 
     //sort ptr   -----------------------------------------
-    MyQSort(text.lines, cnt_strings, sizeof(Line), CmpPtr);
+    qsort(text.lines, cnt_strings, sizeof(Line), CmpPtr);
     WriteToFile(text.lines, "result_ptr.txt", cnt_strings, 1); 
 
     free(text.buffer);
