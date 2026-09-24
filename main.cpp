@@ -2,60 +2,63 @@
 #include <assert.h>
 #include <ctype.h>
 #include <stdlib.h>
+#include <locale.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h> 
 #include "str_func.cpp"
 #include "sort_func.cpp"
 
-struct String {
-    char* string;
+struct Line {
+    char* line;
     size_t len = 0;
 };
 
 struct Text {
-    String* index;
+    Line* lines;
     char* buffer;
 };
 
-int     GetText      (const char* file, Text* text);
-int     ReadFromFile (const char* file, char** buffer);
-int     GetFileSize  (int file);
-String* GetStrings   (char** buffer, int cnt_strings, int read_elems);
-int     WriteToFile  (String* index, const char* file, int size, int need_empty);
-int     CmpStrUpBegin(const void* val1, const void* val2);
-int     CmpStrUpEnd  (const void* val1, const void* val2);
-int     CmpPtr       (const void* val1, const void* val2);
+int   GetText      (const char* file, Text* text);
+int   ReadFromFile (const char* file, char** buffer);
+int   GetFileSize  (int file);
+Line* GetStrings   (char** buffer, int cnt_strings, int read_elems);
+int   WriteToFile  (Line* lines, const char* file, int size, int need_empty);
+int   CmpStrUpBegin(const void* val1, const void* val2);
+int   CmpStrUpEnd  (const void* val1, const void* val2);
+int   CmpPtr       (const void* val1, const void* val2);
 
 int main () {
+
+    setlocale(LC_ALL, "Russian");
 
     Text text = {NULL, NULL};
     int cnt_strings = GetText("Hamlet.txt", &text);
 
     //sort begin -----------------------------------------
-    MyBubbleSort(text.index, cnt_strings, sizeof(String), CmpStrUpBegin);
-    WriteToFile(text.index, "result_begin.txt", cnt_strings, 0);
+    MyBubbleSort(text.lines, cnt_strings, sizeof(Line), CmpStrUpBegin);
+    WriteToFile(text.lines, "result_begin.txt", cnt_strings, 0);
     
     //sort end   -----------------------------------------
-    qsort(text.index, cnt_strings, sizeof(String), CmpStrUpEnd);
-    WriteToFile(text.index, "result_end.txt", cnt_strings, 0);
+    qsort(text.lines, cnt_strings, sizeof(Line), CmpStrUpEnd);
+    WriteToFile(text.lines, "result_end.txt", cnt_strings, 0);
 
     //sort ptr   -----------------------------------------
-    MyBubbleSort(text.index, cnt_strings, sizeof(String), CmpPtr);
-    WriteToFile(text.index, "result_ptr.txt", cnt_strings, 1); 
+    MyQSort(text.lines, cnt_strings, sizeof(Line), CmpPtr);
+    WriteToFile(text.lines, "result_ptr.txt", cnt_strings, 1); 
 
     free(text.buffer);
-    free(text.index);
+    free(text.lines);
 
 }
 
 int GetText (const char* file, Text* text) {
-    int read_elems = ReadFromFile("Hamlet.txt", &(*text).buffer);
+    int read_elems = ReadFromFile(file, &(*text).buffer);
     assert(read_elems != -1);
 
     int cnt_strings = CntChar((*text).buffer, '\n', read_elems) + 1;
 
-    (*text).index = GetStrings(&(*text).buffer, cnt_strings, read_elems); 
+    (*text).lines = GetStrings(&(*text).buffer, cnt_strings, read_elems); 
     return cnt_strings;
 }
 
@@ -86,28 +89,28 @@ int GetFileSize (int file) {
     return statistic.st_size;
 }
 
-String* GetStrings (char** buffer, int cnt_strings, int read_elems) {
-    String* index = (String*)calloc(cnt_strings, sizeof(String));
-    assert(index != NULL);
+Line* GetStrings (char** buffer, int cnt_strings, int read_elems) {
+    Line* lines = (Line*)calloc(cnt_strings, sizeof(Line));
+    assert(lines != NULL);
 
     int ind = 1;
-    index[0].string = *buffer;
+    lines[0].line = *buffer;
     for (int i = 0; i < read_elems; ++i) {
         if ((*buffer)[i] == '\r') {
             printf("o no:(");
         }
         if ((*buffer)[i] == '\n') {
             (*buffer)[i] = '\0';
-            index[ind].string = *buffer + i + 1;
-            index[ind - 1].len = MyStrLen(index[ind - 1].string);
+            lines[ind].line = *buffer + i + 1;
+            lines[ind - 1].len = MyStrLen(lines[ind - 1].line);
             ind += 1;
         }
     }
-    index[ind - 1].len = MyStrLen(index[ind - 1].string);
-    return index;
+    lines[ind - 1].len = MyStrLen(lines[ind - 1].line);
+    return lines;
 }
 
-int WriteToFile (String* index, const char* file, int size, int need_empty) {
+int WriteToFile (Line* lines, const char* file, int size, int need_empty) {
     int fd = open(file, O_WRONLY);
     if (fd == -1) {
         printf("Don't find %s", file);
@@ -115,10 +118,10 @@ int WriteToFile (String* index, const char* file, int size, int need_empty) {
     }
 
     for (int i = 0; i < size; ++i) {
-        if (index[i].len == 0 && !need_empty) {
+        if (lines[i].len == 0 && !need_empty) {
             continue;
         } 
-        write(fd, index[i].string, index[i].len );
+        write(fd, lines[i].line, lines[i].len );
         write(fd, "\n", 1);
     }
 
@@ -127,23 +130,23 @@ int WriteToFile (String* index, const char* file, int size, int need_empty) {
 }
 
 int CmpStrUpBegin (const void* val1, const void* val2) {
-    const String str1 = *(const String*)val1;
-    const String str2 = *(const String*)val2;
+    const Line str1 = *(const Line*)val1;
+    const Line str2 = *(const Line*)val2;
 
     int i = 0, j = 0;
 
     while (i < str1.len && j < str2.len) {
-        while (i < str1.len && !isalpha(str1.string[i])){
+        while (i < str1.len && !isalpha(str1.line[i])){
             i++;
         }
-        while (j < str2.len && !isalpha(str2.string[j])){
+        while (j < str2.len && !isalpha(str2.line[j])){
             j++;
         }
         if (i >= str1.len || j >=str2.len) {
             return (i >= str1.len ? (j >= str2.len ? 0 : -1) : 1);
         } 
-        if (tolower(str1.string[i]) != tolower(str2.string[j])){
-            return tolower(str1.string[i]) - tolower(str2.string[j]);
+        if (tolower(str1.line[i]) != tolower(str2.line[j])){
+            return tolower(str1.line[i]) - tolower(str2.line[j]);
         }
         i++;
         j++;
@@ -152,23 +155,23 @@ int CmpStrUpBegin (const void* val1, const void* val2) {
 }
 
 int CmpStrUpEnd (const void* val1, const void* val2) {
-    const String str1 = *(const String*)val1;
-    const String str2 = *(const String*)val2;
+    const Line str1 = *(const Line*)val1;
+    const Line str2 = *(const Line*)val2;
 
     int i = str1.len - 1, j = str2.len - 1;
 
     while (i >= 0 && j >= 0) {
-        while (i >= 0 && !isalpha(str1.string[i])){
+        while (i >= 0 && !isalpha(str1.line[i])){
             i--;
         }
-        while (j >= 0 && !isalpha(str2.string[j])){
+        while (j >= 0 && !isalpha(str2.line[j])){
             j--;
         }
         if (i < 0 || j < 0) {
             return (i < 0 ? (j < 0 ? 0 : -1) : 1);
         } 
-        if (tolower(str1.string[i]) != tolower(str2.string[j])){
-            return tolower(str1.string[i]) - tolower(str2.string[j]);
+        if (tolower(str1.line[i]) != tolower(str2.line[j])){
+            return tolower(str1.line[i]) - tolower(str2.line[j]);
         }
         i--;
         j--;
@@ -178,7 +181,7 @@ int CmpStrUpEnd (const void* val1, const void* val2) {
 }
 
 int CmpPtr (const void* val1, const void* val2) {
-    const String str1 = *(const String*)val1;
-    const String str2 = *(const String*)val2;
-    return str1.string - str2.string;
+    const Line str1 = *(const Line*)val1;
+    const Line str2 = *(const Line*)val2;
+    return str1.line - str2.line;
 }
