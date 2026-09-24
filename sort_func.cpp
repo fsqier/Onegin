@@ -15,7 +15,7 @@ int    CmpIntUp      (void* val1, void* val2);
 int* InputArr (int* arr, int size) {
     assert(arr != NULL);
 
-    printf("Введите пж массив из %d элементов: ", size);
+    printf("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ %d пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: ", size);
     for(int i = 0; i < size; ++i) {
         scanf("%d", &arr[i]);
     }
@@ -44,13 +44,13 @@ void* MyBubbleSort(void* arr, size_t size, size_t size_elem, int (*Cmp)(const vo
     return arr;
 }
 
-size_t PartitionHoaro(void* arr, size_t l, size_t r, size_t size_elem, 
+size_t PartitionHoaro(void* arr, size_t size, size_t size_elem, 
                         int (*Cmp)(const void* val1, const void* val2)) {
 
     unsigned char* buf = (unsigned char*)arr;
-    unsigned char* pivot = buf + (l + (r - l + 1) / 2) * size_elem;
+    unsigned char* pivot = buf + (size / 2 - 1) * size_elem;
 
-    size_t i = l, j = r - 1;
+    size_t i = 0, j = size - 1;
     while (i <= j) {
         unsigned char * ptri = buf + i * size_elem;
         while ((Cmp(ptri, pivot) < 0)) {
@@ -76,16 +76,16 @@ size_t PartitionHoaro(void* arr, size_t l, size_t r, size_t size_elem,
 
 }
 
-void* MyQSort (void* arr, size_t l, size_t r, size_t size_elem, 
+void* MyQSort (void* arr, size_t size_arr, size_t size_elem, 
                 int (*Cmp)(const void* val1, const void* val2)) {
-    if (l + 1 >= r) {
+    if (size_arr < 2) {
         return arr;
     }
     
-    size_t ind = PartitionHoaro(arr, l, r, size_elem, Cmp);
+    size_t ind = PartitionHoaro(arr, size_arr, size_elem, Cmp);
 
-    MyQSort(arr, l, ind, size_elem, Cmp);
-    MyQSort(arr, ind + 1, r, size_elem, Cmp);
+    MyQSort(arr, ind + 1, size_elem, Cmp);
+    MyQSort((char*)arr + (ind + 1) * size_elem, size_arr - (ind + 1), size_elem, Cmp);
     return arr;
 }
 
