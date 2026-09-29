@@ -5,7 +5,7 @@
 #include <locale.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <fcntl.h> 
+#include <fcntl.h>
 #include <windows.h>
 #include "str_func.cpp"
 #include "sort_func.cpp"
@@ -32,21 +32,22 @@ int   CmpPtr       (const void* val1, const void* val2);
 int main () {
 
     setlocale(LC_ALL, "Russian");
+    
 
     Text text = {NULL, NULL};
-    int cnt_strings = GetText("Hamlet.txt", &text);
+    int cnt_strings = GetText("Onegin.txt", &text);
 
     //sort begin -----------------------------------------
     MyBubbleSort(text.lines, cnt_strings, sizeof(Line), CmpStrUpBegin);
     WriteToFile(text.lines, "result_begin.txt", cnt_strings, 0);
-    
+
     //sort end   -----------------------------------------
     MyQSort(text.lines, cnt_strings, sizeof(Line), CmpStrUpEnd);
     WriteToFile(text.lines, "result_end.txt", cnt_strings, 0);
 
     //sort ptr   -----------------------------------------
     qsort(text.lines, cnt_strings, sizeof(Line), CmpPtr);
-    WriteToFile(text.lines, "result_ptr.txt", cnt_strings, 1); 
+    WriteToFile(text.lines, "result_ptr.txt", cnt_strings, 1);
 
     free(text.buffer);
     free(text.lines);
@@ -59,7 +60,7 @@ int GetText (const char* file, Text* text) {
 
     int cnt_strings = CntChar((*text).buffer, '\n', read_elems) + 1;
 
-    (*text).lines = GetStrings(&(*text).buffer, cnt_strings, read_elems); 
+    (*text).lines = GetStrings(&(*text).buffer, cnt_strings, read_elems);
     return cnt_strings;
 }
 
@@ -69,7 +70,7 @@ int ReadFromFile (const char* file, char** buffer) {
         printf("Don't find %s\n", file);
         return -1;
     }
-    
+
     int cnt_elems = GetFileSize(fd);
 
     *buffer = (char*)calloc(cnt_elems + 1, sizeof(char));
@@ -84,8 +85,8 @@ int ReadFromFile (const char* file, char** buffer) {
 }
 
 int GetFileSize (int file) {
-    struct stat statistic; 
-    int ok = fstat(file, &statistic); 
+    struct stat statistic;
+    int ok = fstat(file, &statistic);
     assert(ok != -1);
     return statistic.st_size;
 }
@@ -103,7 +104,7 @@ Line* GetStrings (char** buffer, int cnt_strings, int read_elems) {
         if ((*buffer)[i] == '\n') {
             (*buffer)[i] = '\0';
             lines[ind].line = *buffer + i + 1;
-            lines[ind - 1].len = MyStrLen(lines[ind - 1].line);
+            lines[ind - 1].len = lines[ind].line - lines[ind - 1].line - 1;
             ind += 1;
         }
     }
@@ -112,7 +113,7 @@ Line* GetStrings (char** buffer, int cnt_strings, int read_elems) {
 }
 
 int WriteToFile (Line* lines, const char* file, int size, int need_empty) {
-    int fd = open(file, O_WRONLY);
+    int fd = open(file, O_WRONLY | O_TRUNC);
     if (fd == -1) {
         printf("Don't find %s", file);
         return -1;
@@ -121,7 +122,7 @@ int WriteToFile (Line* lines, const char* file, int size, int need_empty) {
     for (int i = 0; i < size; ++i) {
         if (lines[i].len == 0 && !need_empty) {
             continue;
-        } 
+        }
         write(fd, lines[i].line, lines[i].len );
         write(fd, "\n", 1);
     }
@@ -137,15 +138,15 @@ int CmpStrUpBegin (const void* val1, const void* val2) {
     int i = 0, j = 0;
 
     while (i < str1.len && j < str2.len) {
-        while (i < str1.len && !isalpha(str1.line[i])){
+        while (i < str1.len && !isalpha(toupper(str1.line[i]))){
             i++;
         }
-        while (j < str2.len && !isalpha(str2.line[j])){
+        while (j < str2.len && !isalpha(toupper(str2.line[j]))){
             j++;
         }
         if (i >= str1.len || j >=str2.len) {
             return (i >= str1.len ? (j >= str2.len ? 0 : -1) : 1);
-        } 
+        }
         if (tolower(str1.line[i]) != tolower(str2.line[j])){
             return tolower(str1.line[i]) - tolower(str2.line[j]);
         }
@@ -162,17 +163,17 @@ int CmpStrUpEnd (const void* val1, const void* val2) {
     int i = str1.len - 1, j = str2.len - 1;
 
     while (i >= 0 && j >= 0) {
-        while (i >= 0 && !isalpha(str1.line[i])){
+        while (i >= 0 && !isalpha(toupper(str1.line[i]))){
             i--;
         }
-        while (j >= 0 && !isalpha(str2.line[j])){
+        while (j >= 0 && !isalpha(toupper(str2.line[j]))){
             j--;
         }
         if (i < 0 || j < 0) {
             return (i < 0 ? (j < 0 ? 0 : -1) : 1);
-        } 
-        if (tolower(str1.line[i]) != tolower(str2.line[j])){
-            return tolower(str1.line[i]) - tolower(str2.line[j]);
+        }
+        if (toupper(str1.line[i]) != toupper(str2.line[j])){
+            return toupper(str1.line[i]) - toupper(str2.line[j]);
         }
         i--;
         j--;

@@ -15,7 +15,7 @@ int    CmpIntUp      (void* val1, void* val2);
 int* InputArr (int* arr, int size) {
     assert(arr != NULL);
 
-    printf("пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ %d пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ: ", size);
+    printf("введите массив размером %d : ", size);
     for(int i = 0; i < size; ++i) {
         scanf("%d", &arr[i]);
     }
@@ -93,35 +93,31 @@ void MySwap (void* val1, void* val2, size_t len) {
     assert(val1 != NULL);
     assert(val2 != NULL);
 
-    uint64_t buf1;
     for (size_t i = 0; i < len / 8; ++i) {
-        buf1 = ((uint64_t*)val1)[i];
+        uint64_t buf1 = ((uint64_t*)val1)[i];
         ((uint64_t*)val1)[i] = ((uint64_t*)val2)[i];
         ((uint64_t*)val2)[i] = buf1;
     }
 
-    uint32_t buf2;
     int blocks = len / 8 * 8;
-    for (size_t i = 0; i < len % 8 / 4; ++i) {
-        buf2 = ((uint32_t*)val1)[i];
-        ((uint32_t*)val1 + blocks)[i] = ((uint32_t*)val2 + blocks)[i];
-        ((uint32_t*)val2 + blocks)[i] = buf2;
+    if (len % 8 / 4 > 0) {
+        uint32_t buf2 = ((uint32_t*)val1)[0];
+        ((uint32_t*)val1 + blocks)[0] = ((uint32_t*)val2 + blocks)[0];
+        ((uint32_t*)val2 + blocks)[0] = buf2;
     }
 
-    uint16_t buf3;
     blocks = len / 8 / 4 * 32;
-    for (size_t i = 0; i < len % 8 % 4 / 2; ++i) {
-        buf3 = ((uint16_t*)val1)[i];
-        ((uint16_t*)val1 + blocks)[i] = ((uint16_t*)val2 + blocks)[i];
-        ((uint16_t*)val2 + blocks)[i] = buf3;
+    if (len % 8 % 4 / 2 > 0) {
+        uint16_t buf3 = ((uint16_t*)val1)[0];
+        ((uint16_t*)val1 + blocks)[0] = ((uint16_t*)val2 + blocks)[0];
+        ((uint16_t*)val2 + blocks)[0] = buf3;
     }
 
-    uint8_t buf4;
     blocks = len / 8 / 4 / 2 * 64;
-    for (size_t i = 0; i < len % 8 % 4 % 2; ++i) {
-        buf4 = ((uint8_t*)val1)[i];
-        ((uint8_t*)val1 + blocks)[i] = ((uint8_t*)val2 + blocks)[i];
-        ((uint8_t*)val2 + blocks)[i] = buf4;
+    if (len % 8 % 4 % 2 > 0) {
+        uint8_t buf4 = ((uint8_t*)val1)[0];
+        ((uint8_t*)val1 + blocks)[0] = ((uint8_t*)val2 + blocks)[0];
+        ((uint8_t*)val2 + blocks)[0] = buf4;
     }
 }
 

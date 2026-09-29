@@ -3,5 +3,8 @@
 *.exe
 *.exe.log
 *.exe.log.dmp
+result_begin.txt
+result_end.txt
+result_ptr.txt
 latex/
 html/
