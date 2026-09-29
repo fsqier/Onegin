@@ -35,19 +35,32 @@ int main () {
     
 
     Text text = {NULL, NULL};
-    int cnt_strings = GetText("Onegin.txt", &text);
+    const int max_file_name = 300;
+    char s[max_file_name];
+    printf("¬ведите им€ файла(не более %d символов): ", max_file_name);
+    scanf("%s", s);
+    int cnt_strings = GetText(s, &text);
 
     //sort begin -----------------------------------------
     MyBubbleSort(text.lines, cnt_strings, sizeof(Line), CmpStrUpBegin);
-    WriteToFile(text.lines, "result_begin.txt", cnt_strings, 0);
+    printf("¬ведите им€ файла куда запишетс€ сортировка по началу(не более %d символов): ", max_file_name);
+    scanf("%s", s);
+    WriteToFile(text.lines, s, cnt_strings, 0);
+    printf("—ортировка по началу строки в файле успешно выполнена!\n");
 
     //sort end   -----------------------------------------
     MyQSort(text.lines, cnt_strings, sizeof(Line), CmpStrUpEnd);
-    WriteToFile(text.lines, "result_end.txt", cnt_strings, 0);
+    printf("¬ведите им€ файла куда запишетс€ сортировка по концу(не более %d символов): ", max_file_name);
+    scanf("%s", s);
+    WriteToFile(text.lines, s, cnt_strings, 0);
+    printf("—ортировка по концу строки в файле успешно выполнена!\n");
 
     //sort ptr   -----------------------------------------
     qsort(text.lines, cnt_strings, sizeof(Line), CmpPtr);
+    printf("¬ведите им€ файла куда запишетс€ исходный текст(не более %d символов): ", max_file_name);
+    scanf("%s", s);
     WriteToFile(text.lines, "result_ptr.txt", cnt_strings, 1);
+    printf("»сходный текст записан успешно получен<3\n");
 
     free(text.buffer);
     free(text.lines);
